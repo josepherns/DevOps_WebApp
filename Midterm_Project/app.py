@@ -3,6 +3,7 @@ from flask import request
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -32,7 +33,24 @@ class AccountsMeta(ma.Schema):
 account_meta = AccountsMeta()
 accounts_meta = AccountsMeta(many = True)
 
+class Products(db.Model):
+    __tablename__="product"
+    barcode = db.Column(db.Integer,primary_key=True)
+    product = db.Column(db.String(50))
+    status = db.Column(db.String(50))
+    quantity = db.Column(db.Integer)
+    def __init__(self,barcode,product,status,quantity):
+        self.barcode = barcode
+        self.product = product
+        self.status = status
+        self.quantity = quantity
 
+class ProductsMeta(ma.Schema):
+    class Meta:
+        fields = ("barcode","product","status","quantity")
+
+product_meta = ProductsMeta()
+products_meta = ProductsMeta(many = True)
 
 @app.route("/")
 def main():
@@ -79,7 +97,32 @@ def signup_form():
             db.session.add(new_account)
             db.session.commit()
             return redirect(url_for('main'))
-    
+
+@app.route('/Product',methods=['GET','POST'])
+def product():
+    rows = Products.query.all()
+    return render_template("products.html",rows=rows)
+
+@app.route('/About_Us')
+def about_us():
+    return render_template("aboutus.html")
+
+@app.route('/Orders')
+def orders():
+    return render_template("orders.html")
+
+@app.route('/product_form', methods=['GET','POST'])
+def product_form():
+    if request.method == 'POST':
+        Barcode=request.form.get("Barcode_Input")
+        Product=request.form.get("Product_Input")
+        Status=request.form.get("Status_Input")
+        Quantity=request.form.get("Quantity_Input")
+        print(Barcode,Product,Status,Quantity)
+        productss = Products(Barcode,Product,Status,Quantity)
+        db.session.add(productss)
+        db.session.commit()
+        return redirect(url_for('product'))
 
 
 if __name__ == "__main__":
