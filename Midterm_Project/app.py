@@ -123,7 +123,35 @@ def product_form():
         db.session.add(productss)
         db.session.commit()
         return redirect(url_for('product'))
+#this is our update route where we are going to update our Product
+@app.route('/Product_update', methods = ['GET', 'POST'])
+def Product_update():
+ 
+    if request.method == 'POST':
+        rows = Products.query.get(request.form.get('id'))
+ 
+        rows.Barcode=request.form.get("Barcode_Edit")
+        rows.Product=request.form.get("Product_Edit")
+        rows.Status=request.form.get("Status_Edit")
+        rows.Quantity=request.form.get("Quantity_Edit")
+        db.session.commit() 
+        return redirect(url_for('product'))
+ 
+ 
+ 
+ 
+#This route is for deleting our product
+@app.route('/Product_delete/<id>/', methods = ['GET', 'POST'])
+def Product_delete(id):
+    rows = Products.query.get(id)
+    db.session.delete(rows)
+    db.session.commit()
+    
+ 
+    return redirect(url_for('product'))
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
